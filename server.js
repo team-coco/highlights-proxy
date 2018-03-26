@@ -90,6 +90,8 @@ app.use('/highlights/:id', proxy('http://localhost:3003/highlights/:id', {
 //   }
 // }));
 
+// test commit
+
 app.get('/:id', function(req, res){
   res.sendFile(path.join(__dirname + '/public/index.html'));
 })
