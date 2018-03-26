@@ -1,0 +1,20 @@
+config:
+  # target: "http://localhost:3003/highlights/mySQL"
+  # target: "http://localhost:3003/highlights/Cassandra"
+  # target: "http://localhost:3003/highlights"
+  target: "http://localhost:3000/highlights"
+  phases:
+    - duration: 10
+      arrivalRate: 20
+  processor: "./testFunctions.js"
+
+scenarios:
+  - name: "Get reviews for a business iterator"
+    flow:
+      - loop:
+        - function: "getRandomBusinessIterator"
+        - get:
+            url: "/{{ iterator }}"
+        count: 100
+      # Print the data we're sending while debugging the script:
+      # - log: "Sent a get request to /{{ iterator }}"
