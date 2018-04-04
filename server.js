@@ -4,9 +4,30 @@ const proxy = require('express-http-proxy');
 const path = require('path');
 const app = express();
 const bodyParser = require('body-parser')
+const request = require('request')
 
 app.use(morgan('dev'));
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/main/:id', proxy('http://localhost:3003/main/highlights/ssr/:id', {
+  proxyReqPathResolver: function(req) {
+    return `http://localhost:3003/main/highlights/ssr/` + req.params.id;
+  }
+}));
+
+// app.use('/main/:id', (req, res) => {
+// 	const url = 'http://localhost:3003/api/highlights/ssr/:id';
+// 	req.pipe(request(url)).pipe(res);
+// })
+
+// app.get('/:id', function(req, res){
+//   res.sendFile(path.join(__dirname + '/public/index.html'));
+// })
+
+const port = process.env.PORT || 3000;
+app.listen(port, function(){
+  console.log(`proxy server is live on port ${port}!`)
+})
 
 // app.use('/title-bar/restaurant/:id', proxy('http://52.8.109.246/title-bar/restaurant/:id', {
 //   proxyReqPathResolver: function(req) {
@@ -14,12 +35,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 //   }
 // }));
 
-app.use('/highlights/:id', proxy('http://localhost:3003/highlights/:id', {
-  proxyReqPathResolver: function(req) {
-    return `http://localhost:3003/highlights/` + req.params.id;
-  }
-}));
-  
 // app.use('/highlights/reviews/:id', proxy('http://54.241.166.39/highlights/reviews/:id', {
 //   proxyReqPathResolver: function(req) {
 //     return `http://54.241.166.39/highlights/reviews/` + req.params.id;
@@ -89,11 +104,3 @@ app.use('/highlights/:id', proxy('http://localhost:3003/highlights/:id', {
 //     return 'http://34.216.201.147/map-and-images/business/' + req.params.id + '/photos';
 //   }
 // }));
-
-app.get('/:id', function(req, res){
-  res.sendFile(path.join(__dirname + '/public/index.html'));
-})
-
-app.listen(3000, function(){
-  console.log('proxy server is live on port 3000!')
-})
