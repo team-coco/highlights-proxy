@@ -1,24 +1,42 @@
 const express = require('express');
-const morgan = require('morgan');
+// const morgan = require('morgan');
 const proxy = require('express-http-proxy');
 const path = require('path');
 const app = express();
-const bodyParser = require('body-parser')
 const request = require('request')
+const redisClient = require('./redis.js')
+const indexHtml = require('./indexHtml.js');
 
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 // app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/main/:id', proxy('http://localhost:3003/main/highlights/ssr/:id', {
-  proxyReqPathResolver: function(req) {
-    return `http://localhost:3003/main/highlights/ssr/` + req.params.id;
-  }
-}));
+var body_highlights;
 
-// app.use('/main/:id', (req, res) => {
-// 	const url = 'http://localhost:3003/api/highlights/ssr/:id';
-// 	req.pipe(request(url)).pipe(res);
-// })
+request('http://localhost:3003/bundle.js', (err, response, body) => {
+	// redisClient.set('body_highlights', JSON.stringify(body))
+	body_highlights = body;
+})
+
+app.use('/main/:iterator', (req, res) => {
+	var iterator = req.params.iterator;
+	redisClient.get(iterator, (err, result) => {
+		if (result) {
+			res.send(indexHtml(JSON.parse(result), body_highlights));
+		} else {
+			const url = `http://localhost:3003/api/highlights/ssr/${iterator}`;
+			request(url, (err, response, body) => {
+				res.send(indexHtml(body, body_highlights));
+				redisClient.setex(iterator, 60, JSON.stringify(body));
+			})
+		}
+	})
+})
+
+// app.use('/main/:id', proxy('http://localhost:3003/main/highlights/ssr/:id', {
+//   proxyReqPathResolver: function(req) {
+//     return `http://localhost:3003/main/highlights/ssr/` + req.params.id;
+//   }
+// }));
 
 // app.get('/:id', function(req, res){
 //   res.sendFile(path.join(__dirname + '/public/index.html'));
