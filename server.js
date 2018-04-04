@@ -1,12 +1,51 @@
 const express = require('express');
-const morgan = require('morgan');
+// const morgan = require('morgan');
 const proxy = require('express-http-proxy');
 const path = require('path');
 const app = express();
-const bodyParser = require('body-parser')
+const request = require('request')
+const redisClient = require('./redis.js')
+const indexHtml = require('./indexHtml.js');
 
-app.use(morgan('dev'));
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(morgan('dev'));
+// app.use(express.static(path.join(__dirname, 'public')));
+
+var body_highlights;
+
+request('http://localhost:3003/bundle.js', (err, response, body) => {
+	// redisClient.set('body_highlights', JSON.stringify(body))
+	body_highlights = body;
+})
+
+app.use('/main/:iterator', (req, res) => {
+	var iterator = req.params.iterator;
+	redisClient.get(iterator, (err, result) => {
+		if (result) {
+			res.send(indexHtml(JSON.parse(result), body_highlights));
+		} else {
+			const url = `http://localhost:3003/api/highlights/ssr/${iterator}`;
+			request(url, (err, response, body) => {
+				res.send(indexHtml(body, body_highlights));
+				redisClient.setex(iterator, 60, JSON.stringify(body));
+			})
+		}
+	})
+})
+
+// app.use('/main/:id', proxy('http://localhost:3003/main/highlights/ssr/:id', {
+//   proxyReqPathResolver: function(req) {
+//     return `http://localhost:3003/main/highlights/ssr/` + req.params.id;
+//   }
+// }));
+
+// app.get('/:id', function(req, res){
+//   res.sendFile(path.join(__dirname + '/public/index.html'));
+// })
+
+const port = process.env.PORT || 3000;
+app.listen(port, function(){
+  console.log(`proxy server is live on port ${port}!`)
+})
 
 // app.use('/title-bar/restaurant/:id', proxy('http://52.8.109.246/title-bar/restaurant/:id', {
 //   proxyReqPathResolver: function(req) {
@@ -14,12 +53,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 //   }
 // }));
 
-app.use('/highlights/:id', proxy('http://localhost:3003/highlights/:id', {
-  proxyReqPathResolver: function(req) {
-    return `http://localhost:3003/highlights/` + req.params.id;
-  }
-}));
-  
 // app.use('/highlights/reviews/:id', proxy('http://54.241.166.39/highlights/reviews/:id', {
 //   proxyReqPathResolver: function(req) {
 //     return `http://54.241.166.39/highlights/reviews/` + req.params.id;
@@ -89,6 +122,7 @@ app.use('/highlights/:id', proxy('http://localhost:3003/highlights/:id', {
 //     return 'http://34.216.201.147/map-and-images/business/' + req.params.id + '/photos';
 //   }
 // }));
+<<<<<<< HEAD
 
 // test commit
 
@@ -99,3 +133,5 @@ app.get('/:id', function(req, res){
 app.listen(3000, function(){
   console.log('proxy server is live on port 3000!')
 })
+=======
+>>>>>>> bd2ebe312b46c4da076dca2e3534c2f242443ed8
