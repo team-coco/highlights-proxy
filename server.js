@@ -4,8 +4,14 @@ const proxy = require('express-http-proxy');
 const path = require('path');
 const app = express();
 const request = require('request')
-const redisClient = require('./redis.js')
+// const redisClient = require('./redis.js')
 const indexHtml = require('./indexHtml.js');
+
+const redis = require('redis');
+const redisClient = redis.createClient(6379, 'http://54.67.79.178');
+redisClient.on('connect', () => {
+  console.log('Connected to redis!');
+});
 
 // app.use(morgan('dev'));
 // app.use(express.static(path.join(__dirname, 'public')));
