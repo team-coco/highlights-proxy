@@ -1,8 +1,8 @@
 config:
   # target: "http://localhost:3000/highlights"
   # target: "http://54.183.67.142/main/highlights/ssr"
-  target: "http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/api/highlights/ssr"
-  #target: "http://54.183.67.142/main/highlights/ssr"
+  # target: "http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/api/highlights/ssr"
+  target: "http://54.219.152.42/main"
   phases:
     - duration: 10
       arrivalRate: 20

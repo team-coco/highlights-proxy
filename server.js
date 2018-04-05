@@ -26,9 +26,10 @@ const redis = require('redis');
 app.use('/main/:iterator', (req, res) => {
 	var iterator = req.params.iterator;
 	const url = `http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/api/highlights/ssr/${iterator}`;
-	request(url, (err, response, body) => {
-		res.send(indexHtml(body, 'http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/bundle.js'));
-	})
+	// request(url, (err, response, body) => {
+	// 	res.send(indexHtml(body, 'http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/bundle.js'));
+	// })
+	req.pipe(request(url)).pipe(res);
 })
 
 // var body_highlights;
