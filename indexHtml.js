@@ -13,7 +13,7 @@ const indexHtml = (highlights, highlights_bundle) => `
     </head>
     <body>
       ${highlights}
-      <script>${highlights_bundle}</script>
+      <script src='${highlights_bundle}'></script>
     </body>
   </html>
 `;
@@ -21,3 +21,5 @@ const indexHtml = (highlights, highlights_bundle) => `
 // export default indexHtml;
 
 module.exports = indexHtml;
+
+//<script>${highlights_bundle}</script>
