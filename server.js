@@ -10,21 +10,28 @@ const indexHtml = require('./indexHtml.js');
 // app.use(morgan('dev'));
 // app.use(express.static(path.join(__dirname, 'public')));
 
-var body_highlights;
+//redisClient.setex('test key', 60, 'test value');
 
-request('http://localhost:3003/bundle.js', (err, response, body) => {
+var body_highlights;
+request('http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/bundle.js', (err, response, body) => {
 	// redisClient.set('body_highlights', JSON.stringify(body))
 	body_highlights = body;
+//console.log(body);
 })
 
 app.use('/main/:iterator', (req, res) => {
+	//console.log('in main iterator')
 	var iterator = req.params.iterator;
 	redisClient.get(iterator, (err, result) => {
 		if (result) {
 			res.send(indexHtml(JSON.parse(result), body_highlights));
 		} else {
-			const url = `http://localhost:3003/api/highlights/ssr/${iterator}`;
+			const url = `http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/api/highlights/ssr/${iterator}`;
 			request(url, (err, response, body) => {
+				//console.log(url)
+				//console.log('requested')
+				//console.log(body)
+				//console.log(body_highlights)
 				res.send(indexHtml(body, body_highlights));
 				redisClient.setex(iterator, 60, JSON.stringify(body));
 			})
@@ -42,7 +49,7 @@ app.use('/main/:iterator', (req, res) => {
 //   res.sendFile(path.join(__dirname + '/public/index.html'));
 // })
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 80;
 app.listen(port, function(){
   console.log(`proxy server is live on port ${port}!`)
 })
