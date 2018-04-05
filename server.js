@@ -21,16 +21,21 @@ const redis = require('redis');
 
 // app.use(morgan('dev'));
 
+app.use('/main/:id', proxy('http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/api/highlights/ssr/:id', {
+  proxyReqPathResolver: function(req) {
+    return `http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/api/highlights/ssr/` + req.params.id;
+  }
+}));
 
 
-app.use('/main/:iterator', (req, res) => {
-	var iterator = req.params.iterator;
-	const url = `http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/api/highlights/ssr/${iterator}`;
-	// request(url, (err, response, body) => {
-	// 	res.send(indexHtml(body, 'http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/bundle.js'));
-	// })
-	req.pipe(request(url)).pipe(res);
-})
+// app.use('/main/:iterator', (req, res) => {
+// 	var iterator = req.params.iterator;
+// 	const url = `http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/api/highlights/ssr/${iterator}`;
+// 	// request(url, (err, response, body) => {
+// 	// 	res.send(indexHtml(body, 'http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/bundle.js'));
+// 	// })
+// 	req.pipe(request(url)).pipe(res);
+// })
 
 // var body_highlights;
 // request('http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/bundle.js', (err, response, body) => {
