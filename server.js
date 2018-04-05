@@ -7,7 +7,7 @@ const request = require('request')
 const redisClient = require('./redis.js')
 const indexHtml = require('./indexHtml.js');
 
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 // app.use(express.static(path.join(__dirname, 'public')));
 
 
@@ -15,11 +15,9 @@ var body_highlights;
 request('http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/bundle.js', (err, response, body) => {
 	// redisClient.set('body_highlights', JSON.stringify(body))
 	body_highlights = body;
-	console.log('bundle gotten');
 })
 
 app.use('/main/:iterator', (req, res) => {
-	//console.log('in main iterator')
 	var iterator = req.params.iterator;
 	redisClient.get(iterator, (err, result) => {
 		if (result) {
