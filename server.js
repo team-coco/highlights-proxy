@@ -16,7 +16,7 @@ var body_highlights;
 request('http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/bundle.js', (err, response, body) => {
 	// redisClient.set('body_highlights', JSON.stringify(body))
 	body_highlights = body;
-//console.log(body);
+	console.log('bundle gotten');
 })
 
 app.use('/main/:iterator', (req, res) => {
