@@ -7,10 +7,9 @@ const request = require('request')
 const redisClient = require('./redis.js')
 const indexHtml = require('./indexHtml.js');
 
-// app.use(morgan('dev'));
+app.use(morgan('dev'));
 // app.use(express.static(path.join(__dirname, 'public')));
 
-//redisClient.setex('test key', 60, 'test value');
 
 var body_highlights;
 request('http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/bundle.js', (err, response, body) => {
@@ -28,10 +27,6 @@ app.use('/main/:iterator', (req, res) => {
 		} else {
 			const url = `http://lb-yelp-highlights-93714774.us-west-1.elb.amazonaws.com/api/highlights/ssr/${iterator}`;
 			request(url, (err, response, body) => {
-				//console.log(url)
-				//console.log('requested')
-				//console.log(body)
-				//console.log(body_highlights)
 				res.send(indexHtml(body, body_highlights));
 				redisClient.setex(iterator, 60, JSON.stringify(body));
 			})
